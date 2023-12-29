@@ -6,7 +6,7 @@
     <title>Document</title>
     <style>
         #wrapper{
-            width:1300px;
+            width:1310px;
             height:900px;
             margin: auto;
             background-color: yellow;
@@ -17,8 +17,36 @@
             background-color:aqua;
             float:left;
         }
+        select{
+            width:96%;
+            height:30px;
+            font-size:20px;
+            background-color: skyblue;
+            color:white;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        textarea{
+            width:96%;
+            height: 150px;
+            background-color: yellow;
+            color:red;
+            margin-top: 5px;
+        }
+        #preview{
+            width:96%;
+            height:150px;
+            border:2px solid red;
+            margin-top: 5px;
+        }
+        #leftSide button{
+            width:96%;
+            height:30px;
+            font-size:20px;
+            margin-top: 10px;
+        }
         #center{
-            width:900px;
+            width:910px;
             height:100%;
             background-color: aquamarine;
             float:left;
@@ -28,7 +56,18 @@
             width:100%;
             height:50px;
             background-color: blueviolet;
+            line-height: 50px;
+            text-align: center;
         }
+        #header button{
+            font-size:20px;
+            width:80px;
+        }
+        #title{
+            font-size:35px;
+            font-weight: bold;
+        }
+
         #content{
             width:100%;
             height:850px;
@@ -42,25 +81,121 @@
             background-color:bisque;
             float:left;
         }
+
+
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="./Cell.js"></script>
     <script>
+        //이미지 경로
+        let iconSrcArray=[
+            "../images/pin1.png",
+            "../images/pin2.png",
+            "../images/pin3.png"
+        ];
+
+        let content;//달력의 셀들을 붙일 영역
+        let dayArray=["Sun","Mon","Tue","Wed","Thur","Fri","Sat"];
+
+        //좌측 select 박스 초기화 
+        function initDate(){
+            //연도
+            let tag="";
+            
+            tag +="<option>연도 선택</option>";
+            for(let i=2030; i>=2020;i--){
+                tag +="<option>"+i+"</option>";
+            }
+            $("select[name='yy']").html(tag);  //innerHTML="<option></option>"
+
+            //월 
+            tag="";
+            tag +="<option>월 선택</option>";
+            for(let i=1; i<=12;i++){
+                tag +="<option>"+i+"</option>";
+            }
+            $("select[name='mm']").html(tag);  //innerHTML="<option></option>"
+          
+            //일 
+            tag="";
+            tag +="<option>일 선택</option>";
+            for(let i=1; i<=31;i++){
+                tag +="<option>"+i+"</option>";
+            }
+            $("select[name='dd']").html(tag);  //innerHTML="<option></option>"
+          
+        }
+
+
+        function createDay(){
+            //너비100, 높이 50 , sun, mon..영문 제목, 배경색  
+            for(let i=0;i<dayArray.length;i++){
+                //container, x, y, width, height, text, bg
+                let cell = new Cell(content, i*130, 0, 130,50, dayArray[i],"green");
+            }
+        }
+        
+        function createDate(){
+            for(let a=0;a<6;a++){ //6층  a
+                for(let i=0;i<dayArray.length;i++){ //7호  i
+                    //container, x, y, width, height, text, bg
+                    let cell = new Cell(content, i*130, 50+(a*120),130,120,"a","yellow");
+                }
+            }
+        }
+
         $(function(){
+            content=document.getElementById("content");
+
             //좌측에 위치했던  content 를 목표지점까지 이동 with 메이메이션
             $("#content").animate({
                 left:"0px"
             });
+
+            initDate();
+
+            //라디오 박스에 이벤트 연결하기 
+            let iconArray = $("input[name='icon']");
+
+            for(let i=0;i<iconArray.length;i++){
+                $(iconArray[i]).click(function(){
+                    //선택한 라디오의  index 와 일치하는 이미지 경로를 얻어서
+                    //preview의 src에 대입
+                    $("#preview").attr("src", iconSrcArray[i]);
+                });
+            }
+
+            createDay();//요일 박스 생성
+            createDate();//날짜 박스 생성
+
         });
     </script>
 </head>
 <body>
     <div id="wrapper">
         
-        <div id="leftSide">좌측영역</div>
+        <div id="leftSide">
+            <select name="yy"></select>
+            <select name="mm"></select>
+            <select name="dd"></select>
+            <textarea name="memo"></textarea>
+            <div>
+                핀1<input type="radio" name="icon">
+                핀2<input type="radio" name="icon">
+                핀3<input type="radio" name="icon">                
+            </div>
+            <img id="preview">
+
+            <button>등록</button>
+        </div>
 
         <div id="center">
-            <div id="header">달력제목</div>
-            <div id="content">달력내용</div>
+            <div id="header">
+                <button>◀</button>                    
+                <span id="title">2002년 10월</span>
+                <button>▶</button>                    
+            </div>
+            <div id="content"></div>
         </div>
         
         <div id="rightSide">우측영역</div>
