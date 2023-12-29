@@ -86,6 +86,7 @@
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="./Cell.js"></script>
+    <script src="../lib/common.js"></script>
     <script>
         //이미지 경로
         let iconSrcArray=[
@@ -96,6 +97,8 @@
 
         let content;//달력의 셀들을 붙일 영역
         let dayArray=["Sun","Mon","Tue","Wed","Thur","Fri","Sat"];
+        let currentDate; //사용자가 현재 보고있는 달을 담고 있을 날짜객체
+        let cellArray=[]; //이차원 구조로 생성된 셀들을 담아놓기 위한 이차원 배열 
 
         //좌측 select 박스 초기화 
         function initDate(){
@@ -137,20 +140,116 @@
         
         function createDate(){
             for(let a=0;a<6;a++){ //6층  a
+                
+                let arr=[];//한층의 호수들을 담기 위한 배열
                 for(let i=0;i<dayArray.length;i++){ //7호  i
                     //container, x, y, width, height, text, bg
                     let cell = new Cell(content, i*130, 50+(a*120),130,120,"a","yellow");
+                    arr.push(cell);
+                }
+                cellArray.push(arr);
+            }
+        }
+
+        //이미 생성된 셀들 위에, 날짜를 출력하기 위한 함수...
+        function printNum(){
+            let n=0; //박스의 순번을 매기기 위한 변수일 뿐, 날짜 자체 아니다...
+            let d=0; //날짜를 담기 위한 변수 
+
+            for(let a=0;a<cellArray.length;a++){ //층수만큼 
+                for(let i=0;i<cellArray[a].length;i++){//호수만큼
+                    //cellArray[a][i].div.innerText=순번;
+                    
+                    d++; //각 월의 시작요일을 n이 넘어서는 순간부터 실행..
+
+                    $(cellArray[a][i].div).text(d);
+                    n++;
                 }
             }
         }
+
+        //달력 제목을 처리할 함수 
+        function printTitle(){
+            let yy=currentDate.getFullYear();//현재 보고 있는 달력의 연도
+            let mm=currentDate.getMonth();//현재 보고 있는 달력의 월 
+            
+            $("#title").text(yy+"년 "+getNumString(mm+1)+"월");
+        }
+
+        function prev(){
+            //일단 현재 내가 보고 있는 달력의 정보를 가져온다.
+            let yy=currentDate.getFullYear();
+            let mm=currentDate.getMonth();
+
+            //그 정보에 1증가된 월을 세팅..
+            currentDate.setFullYear(yy); 
+            currentDate.setMonth(mm-1);
+
+            //정보 조작이 끝났으면, 제목을 출력
+            printTitle();
+
+            ani();
+        }
+        
+        function next(){
+            //일단 현재 내가 보고 있는 달력의 정보를 가져온다.
+            let yy=currentDate.getFullYear();
+            let mm=currentDate.getMonth();
+
+            //그 정보에 1증가된 월을 세팅..
+            currentDate.setFullYear(yy); 
+            currentDate.setMonth(mm+1);
+
+            //정보 조작이 끝났으면, 제목을 출력
+            printTitle();
+
+            ani();
+        }
+        
+        function ani(){
+            //-900으로 돌려놓고, 다시 0으로 에니메이션 시작         
+            $("#content").css("left", "-900px"); //style.left=-900+"px";
+
+            $("#content").animate({
+                left:"0px"
+            });
+        }
+
+        //1) 각월은 무슨 요일부터 시작하는가? 
+        function getStartDayOfWeek(){
+            let d = new Date(); //조작용 객체 
+            
+            let yy=currentDate.getFullYear(); //현재 연도
+            let mm=currentDate.getMonth(); //현재 월 
+
+            d.setFullYear(yy); //연도 조작 
+            d.setMonth(mm); //월 조작 
+            d.setDate(1); //1일로 조작 (시작 요일 물어보려고...)
+
+            return d.getDay(); //현재 요일 반환
+        }
+
+        //2) 각월은 몇일까지 있는가?
+        function getLastDateOfMonth(){
+            let d = new Date();//조작용 날짜 객체 
+
+            let yy=currentDate.getFullYear(); //현재 연도
+            let mm=currentDate.getMonth(); //현재 월 
+
+            //조작 시작 
+            d.setFullYear(yy);
+            d.setMonth(mm+1); //다음 달로 조작
+            d.setDate(0); //0일로 조작하면, 이전 달의 마지막날을 가리키게 된다..
+
+            return d.getDate(); //너 몇일이니?
+        }
+
 
         $(function(){
             content=document.getElementById("content");
 
             //좌측에 위치했던  content 를 목표지점까지 이동 with 메이메이션
-            $("#content").animate({
-                left:"0px"
-            });
+            ani();
 
             initDate();
 
@@ -165,8 +264,11 @@
                 });
             }
 
+            currentDate = new Date();//현재 날짜 객체 생성 
+            printTitle();
             createDay();//요일 박스 생성
             createDate();//날짜 박스 생성
+            printNum();//박스들이 생성된 이후에 호출해야 함..
 
         });
     </script>
@@ -191,9 +293,9 @@
 
         <div id="center">
             <div id="header">
-                <button>◀</button>                    
+                <button onClick="prev()">◀</button>                    
                 <span id="title">2002년 10월</span>
-                <button>▶</button>                    
+                <button onClick="next()">▶</button>                    
             </div>
             <div id="content"></div>
         </div>
