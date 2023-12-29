@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #wrapper{
+            width:1300px;
+            height:900px;
+            margin: auto;
+            background-color: yellow;
+        }
+        #leftSide{
+            width:200px;
+            height:100%;
+            background-color:aqua;
+            float:left;
+        }
+        #center{
+            width:900px;
+            height:100%;
+            background-color: aquamarine;
+            float:left;
+            overflow:hidden;
+        }
+        #header{
+            width:100%;
+            height:50px;
+            background-color: blueviolet;
+        }
+        #content{
+            width:100%;
+            height:850px;
+            background-color: burlywood;
+            position: relative;
+            left:-900px;
+        }
+        #rightSide{
+            width:200px;
+            height:100%;
+            background-color:bisque;
+            float:left;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(function(){
+            //좌측에 위치했던  content 를 목표지점까지 이동 with 메이메이션
+            $("#content").animate({
+                left:"0px"
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="wrapper">
+        
+        <div id="leftSide">좌측영역</div>
+
+        <div id="center">
+            <div id="header">달력제목</div>
+            <div id="content">달력내용</div>
+        </div>
+        
+        <div id="rightSide">우측영역</div>
+
+    </div>
+
+</body>
+</html>
